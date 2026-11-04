@@ -1,0 +1,55 @@
+name: Build firmware
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: PlatformIO build (cyd)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: ${{ runner.os }}-pio-${{ hashFiles('platformio.ini') }}
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build
+        run: pio run
+
+      - name: Upload firmware binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-cyd
+          path: |
+            .pio/build/cyd/firmware.bin
+            .pio/build/cyd/bootloader.bin
+            .pio/build/cyd/partitions.bin
+          if-no-files-found: error
+
+  script-check:
+    name: Shell script syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: bash -n
+        run: bash -n tools/send-note.sh

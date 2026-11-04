@@ -1,0 +1,10 @@
+# PlatformIO build output and local IDE state
+.pio/
+.vscode/
+
+# Wi-Fi credentials (copy include/secrets.h.example to create this file)
+include/secrets.h
+
+# Editor and OS noise
+.DS_Store
+*.swp
